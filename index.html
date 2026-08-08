@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edify Me</title>
+<link rel="icon" type="image/svg+xml" href="edify-me-logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ======================= INITIAL LOADER ======================= -->
+<div id="initial-loader" class="initial-loader">
+  <img src="edify-me-logo.svg" alt="" class="loader-logo">
+  <div class="spinner"></div>
+</div>
+
+<!-- ======================= AUTH SCREENS ======================= -->
+<div id="auth-wrap" class="auth-wrap hidden">
+
+  <div class="auth-brand">
+    <img src="edify-me-logo.svg" alt="Edify Me logo" class="brand-mark">
+    <h1>Edify Me</h1>
+    <p class="brand-tag">A quiet place to share, encourage, and grow together.</p>
+  </div>
+
+  <!-- LOGIN -->
+  <section id="view-login" class="auth-card">
+    <h2>Welcome back</h2>
+    <p class="auth-sub">Log in with your username or email.</p>
+    <form id="form-login">
+      <label>Username or Email
+        <input type="text" id="login-identifier" required placeholder="e.g. graceful_soul or you@mail.com">
+      </label>
+      <label>Password
+        <input type="password" id="login-password" required placeholder="••••••••">
+      </label>
+      <div id="login-error" class="form-error"></div>
+      <button type="submit" class="btn btn-primary btn-block"><span class="btn-label">Log in</span></button>
+    </form>
+    <div class="auth-links">
+      <a href="#" id="link-to-reset">Forgot password?</a>
+      <a href="#" id="link-to-signup">Create an account</a>
+    </div>
+  </section>
+
+  <!-- SIGN UP -->
+  <section id="view-signup" class="auth-card hidden">
+    <h2>Join Edify Me</h2>
+    <p class="auth-sub">Create your account to start sharing.</p>
+    <form id="form-signup">
+      <div class="two-col">
+        <label>First name
+          <input type="text" id="signup-first" required>
+        </label>
+        <label>Last name
+          <input type="text" id="signup-last" required>
+        </label>
+      </div>
+      <label>Email
+        <input type="email" id="signup-email" required>
+      </label>
+      <label>Username
+        <input type="text" id="signup-username" required placeholder="unique username">
+      </label>
+      <label>Password
+        <input type="password" id="signup-password" required minlength="6">
+      </label>
+      <div id="signup-error" class="form-error"></div>
+      <button type="submit" class="btn btn-primary btn-block"><span class="btn-label">Create account</span></button>
+    </form>
+    <div class="auth-links">
+      <a href="#" id="link-to-login">Already have an account? Log in</a>
+    </div>
+  </section>
+
+  <!-- EMAIL VERIFICATION -->
+  <section id="view-verify" class="auth-card hidden">
+    <h2>Verify your email</h2>
+    <p class="auth-sub">We sent a 6-digit code to <span id="verify-email-target"></span>. Check your inbox (and spam folder).</p>
+    <form id="form-verify">
+      <label>Verification code
+        <input type="text" id="verify-code" required maxlength="6" placeholder="000000">
+      </label>
+      <div id="verify-error" class="form-error"></div>
+      <button type="submit" class="btn btn-primary btn-block"><span class="btn-label">Verify & continue</span></button>
+    </form>
+    <div class="auth-links">
+      <a href="#" id="link-resend-code">Didn't get a code? Resend it</a>
+    </div>
+  </section>
+
+  <!-- PASSWORD RESET REQUEST -->
+  <section id="view-reset-request" class="auth-card hidden">
+    <h2>Reset your password</h2>
+    <p class="auth-sub">Enter the email on your account. We'll verify it's you first.</p>
+    <form id="form-reset-request">
+      <label>Email
+        <input type="email" id="reset-email" required>
+      </label>
+      <div id="reset-request-error" class="form-error"></div>
+      <button type="submit" class="btn btn-primary btn-block"><span class="btn-label">Send verification code</span></button>
+    </form>
+    <div class="auth-links">
+      <a href="#" id="link-reset-to-login">Back to login</a>
+    </div>
+  </section>
+
+  <!-- PASSWORD RESET VERIFY + NEW PASSWORD -->
+  <section id="view-reset-verify" class="auth-card hidden">
+    <h2>Verify & set new password</h2>
+    <p class="auth-sub">Enter the code we emailed you, then choose a new password.</p>
+    <form id="form-reset-verify">
+      <label>Verification code
+        <input type="text" id="reset-code" required maxlength="6" placeholder="000000">
+      </label>
+      <label>New password
+        <input type="password" id="reset-new-password" required minlength="6">
+      </label>
+      <div id="reset-verify-error" class="form-error"></div>
+      <button type="submit" class="btn btn-primary btn-block"><span class="btn-label">Reset password</span></button>
+    </form>
+  </section>
+
+  <!-- ONBOARDING: SUGGESTED FOLLOWS FOR NEW USERS -->
+  <section id="view-onboarding" class="auth-card hidden">
+    <h2>People you may like to follow</h2>
+    <p class="auth-sub">Based on what's active on Edify Me right now. You can always change this later.</p>
+    <div id="onboarding-suggestions" class="suggestion-list"></div>
+    <button id="onboarding-continue" class="btn btn-primary btn-block">Continue to my feed</button>
+  </section>
+
+</div>
+
+<!-- ======================= MAIN APP ======================= -->
+<div id="app-wrap" class="app-wrap hidden">
+
+  <header class="topbar">
+    <div class="topbar-brand"><img src="edify-me-logo.svg" alt="Edify Me logo" class="brand-mark small"> Edify Me</div>
+    <nav class="navbar" id="navbar">
+      <button class="nav-btn active" data-page="feeds">Feeds</button>
+      <button class="nav-btn" data-page="followers">Followers</button>
+      <button class="nav-btn" data-page="profile">My Profile</button>
+      <button class="nav-btn" data-page="announcements">Announcements</button>
+      <button class="nav-btn" data-page="settings">Settings</button>
+    </nav>
+    <div class="topbar-user">
+      <span id="topbar-username"></span>
+      <button id="btn-logout" class="btn btn-ghost">Log out</button>
+    </div>
+  </header>
+
+  <main class="main-area">
+
+    <!-- FEEDS PAGE -->
+    <section id="page-feeds" class="page">
+      <div class="feed-layout">
+        <div class="feed-main">
+
+          <!-- COMPOSER -->
+          <div class="composer card">
+            <div class="composer-toolbar">
+              <button type="button" class="fmt-btn" data-format="h1" title="Heading 1"><b>H1</b></button>
+              <button type="button" class="fmt-btn" data-format="h2" title="Heading 2"><b>H2</b></button>
+              <button type="button" class="fmt-btn" data-format="p" title="Paragraph">P</button>
+              <button type="button" class="fmt-btn" data-format="italic" title="Italic"><i>I</i></button>
+              <button type="button" id="composer-edit-toggle" class="fmt-btn edit-icon" title="Toggle edit lock">✎</button>
+            </div>
+            <div id="composer-text" class="composer-text" contenteditable="true" data-placeholder="Share something encouraging..."></div>
+
+            <div class="composer-media">
+              <label class="media-btn">
+                🖼️ Image
+                <input type="file" id="composer-image" accept="image/*" hidden>
+              </label>
+              <label class="media-btn">
+                🎵 Music
+                <input type="file" id="composer-music" accept="audio/*" hidden>
+              </label>
+              <span id="composer-media-preview" class="media-preview"></span>
+            </div>
+
+            <div class="composer-actions">
+              <button id="composer-clear" class="btn btn-ghost">Clear</button>
+              <button id="composer-post" class="btn btn-primary"><span class="btn-label">Post</span></button>
+            </div>
+          </div>
+
+          <!-- FEED -->
+          <div id="feed-list" class="feed-list"></div>
+        </div>
+
+        <aside class="feed-side">
+          <div class="card side-card">
+            <h3>Suggested for you</h3>
+            <div id="suggested-people" class="suggestion-list"></div>
+          </div>
+          <div class="card side-card">
+            <h3>Posts you may like</h3>
+            <div id="suggested-posts" class="suggestion-list"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FOLLOWERS PAGE -->
+    <section id="page-followers" class="page hidden">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="following">Following</button>
+        <button class="tab-btn" data-tab="followers-of-me">My Followers</button>
+        <button class="tab-btn" data-tab="discover">Discover</button>
+      </div>
+      <div id="tab-following" class="tab-panel"></div>
+      <div id="tab-followers-of-me" class="tab-panel hidden"></div>
+      <div id="tab-discover" class="tab-panel hidden"></div>
+    </section>
+
+    <!-- PROFILE PAGE -->
+    <section id="page-profile" class="page hidden">
+      <div class="profile-header card">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <div class="profile-info">
+          <h2 id="profile-name"></h2>
+          <p id="profile-username" class="muted"></p>
+          <div class="profile-stats">
+            <span><strong id="profile-following-count">0</strong> Following</span>
+            <span><strong id="profile-followers-count">0</strong> Followers</span>
+            <span><strong id="profile-posts-count">0</strong> Posts</span>
+          </div>
+        </div>
+      </div>
+      <div id="profile-posts" class="feed-list"></div>
+    </section>
+
+    <!-- ANNOUNCEMENTS PAGE -->
+    <section id="page-announcements" class="page hidden">
+      <div class="composer card">
+        <h3>Post a program or flier</h3>
+        <label class="field-label">Program title
+          <input type="text" id="ann-title" placeholder="e.g. Youth Revival Night">
+        </label>
+        <label class="field-label">Details
+          <textarea id="ann-details" rows="3" placeholder="Date, time, location, description..."></textarea>
+        </label>
+        <label class="media-btn">
+          🖼️ Attach flier image
+          <input type="file" id="ann-image" accept="image/*" hidden>
+        </label>
+        <span id="ann-media-preview" class="media-preview"></span>
+        <div class="composer-actions">
+          <button id="ann-post" class="btn btn-primary"><span class="btn-label">Post announcement</span></button>
+        </div>
+      </div>
+      <div id="announcements-list" class="feed-list"></div>
+    </section>
+
+    <!-- SETTINGS PAGE -->
+    <section id="page-settings" class="page hidden">
+      <div class="card settings-card">
+        <h3>Account settings</h3>
+        <label class="field-label">First name <input type="text" id="settings-first"></label>
+        <label class="field-label">Last name <input type="text" id="settings-last"></label>
+        <label class="field-label">Email <input type="email" id="settings-email" disabled></label>
+        <button id="settings-save" class="btn btn-primary"><span class="btn-label">Save changes</span></button>
+      </div>
+      <div class="card settings-card">
+        <h3>Change password</h3>
+        <label class="field-label">Current password <input type="password" id="settings-current-pw"></label>
+        <label class="field-label">New password <input type="password" id="settings-new-pw"></label>
+        <div id="settings-pw-error" class="form-error"></div>
+        <button id="settings-change-pw" class="btn btn-primary"><span class="btn-label">Update password</span></button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
