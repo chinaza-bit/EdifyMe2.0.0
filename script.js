@@ -11,7 +11,7 @@
 // production URL below with your actual Render backend URL.
 const API = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
   ? 'http://localhost:4000/api'
-  : 'https://YOUR-BACKEND-NAME.onrender.com/api';
+  : 'https://edifyme2-0-0.onrender.com/api';
 
 let currentUser = null;      // full user object from GET /users/me, refreshed after actions
 let pendingUserId = null;    // user awaiting email verification (signup or unverified login)
