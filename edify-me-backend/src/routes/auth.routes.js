@@ -45,7 +45,12 @@ router.post('/signup', async (req, res) => {
     }
 
     const existing = await prisma.user.findFirst({
-      where: { OR: [{ email }, { username }] }
+      where: {
+        OR: [
+          { email: { equals: email, mode: 'insensitive' } },
+          { username: { equals: username, mode: 'insensitive' } }
+        ]
+      }
     });
     if (existing) {
       return res.status(409).json({ error: 'Email or username already in use.' });
@@ -60,7 +65,16 @@ router.post('/signup', async (req, res) => {
     await prisma.verificationCode.create({
       data: { userId: user.id, code, type: 'signup', expiresAt: new Date(Date.now() + 15 * 60 * 1000) }
     });
-    await sendVerificationEmail(email, code);
+
+    // The account is already created at this point — an email hiccup should
+    // NOT make signup look like it failed. Catch it separately, log it, and
+    // let the user proceed to the verify screen either way; they can use
+    // "Resend code" there if the email didn't actually arrive.
+    try {
+      await sendVerificationEmail(email, code);
+    } catch (emailErr) {
+      console.error('Signup succeeded but verification email failed to send:', emailErr.message);
+    }
 
     res.status(201).json({ message: 'Account created. Check your email for a verification code.', userId: user.id });
   } catch (err) {
@@ -101,7 +115,12 @@ router.post('/login', async (req, res) => {
   try {
     const { identifier, password } = req.body; // identifier = username OR email
     const user = await prisma.user.findFirst({
-      where: { OR: [{ username: identifier }, { email: identifier }] }
+      where: {
+        OR: [
+          { username: { equals: identifier, mode: 'insensitive' } },
+          { email: { equals: identifier, mode: 'insensitive' } }
+        ]
+      }
     });
     if (!user) return res.status(401).json({ error: 'No account found with that username/email.' });
 
@@ -113,7 +132,11 @@ router.post('/login', async (req, res) => {
       await prisma.verificationCode.create({
         data: { userId: user.id, code, type: 'signup', expiresAt: new Date(Date.now() + 15 * 60 * 1000) }
       });
-      await sendVerificationEmail(user.email, code);
+      try {
+        await sendVerificationEmail(user.email, code);
+      } catch (emailErr) {
+        console.error('Login resend: verification email failed to send:', emailErr.message);
+      }
       return res.status(403).json({ error: 'Please verify your email first. A new code was sent.', userId: user.id, needsVerification: true });
     }
 
@@ -136,7 +159,7 @@ router.post('/logout', (req, res) => {
 router.post('/reset/request', async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (!user) return res.status(404).json({ error: 'No account found with that email.' });
 
     const code = genCode();
